@@ -1,0 +1,11 @@
+-I/mnt/Data/contiki
+-I/mnt/Data/contiki/core
+-I/mnt/Data/contiki/core/lib
+-I/mnt/Data/contiki/cpu/cc26xx-cc13xx
+-I/mnt/Data/contiki/cpu/cc26xx-cc13xx/dev
+-I/mnt/Data/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/
+-I/mnt/Data/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib
+-I/mnt/Data/contiki/platform/srf06-cc26xx/
+-I/mnt/Data/contiki/platform/srf06-cc26xx/common
+-I/mnt/Data/contiki/platform/srf06-cc26xx/launchpad
+-I/mnt/Data/contiki/platform/srf06-cc26xx/launchpad/cc2650
