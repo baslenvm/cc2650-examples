@@ -85,7 +85,7 @@ struct lcdDataStruct
   int cx, cy ;
 } ;
 
-MEMB(lcdDataStructs, struct lcdDataStruct, 1);
+MEMB(lcdDataStructs, struct lcdDataStruct, 8);
 
 struct lcdDataStruct *lcds [MAX_LCDS] ;
 
@@ -123,7 +123,7 @@ static void sendDataCmd (const struct lcdDataStruct *lcd, unsigned char data)
 {
   register unsigned char myData = data ;
   unsigned char          i, d4 ;
-  
+
   if (lcd->bits == 4)
   {
     d4 = (myData >> 4) & 0x0F;
