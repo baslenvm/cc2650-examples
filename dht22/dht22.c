@@ -40,8 +40,8 @@
 #include "dev/watchdog.h"
 #include "dht22.h"
 #include "lib/sensors.h"
+#include "ti-lib.h"
 #include <stdio.h>
-#include <ti-lib.h>
 /*---------------------------------------------------------------------------*/
 #define DEBUG 0
 #if DEBUG
@@ -49,15 +49,6 @@
 #else
 #define PRINTF(...)
 #endif
-/*---------------------------------------------------------------------------*/
-#define BUSYWAIT_UNTIL(max_time)                                               \
-  do {                                                                         \
-    rtimer_clock_t t0;                                                         \
-    t0 = RTIMER_NOW();                                                         \
-    while (RTIMER_CLOCK_LT(RTIMER_NOW(), t0 + (max_time))) {                   \
-      watchdog_periodic();                                                     \
-    }                                                                          \
-  } while (0)
 /*---------------------------------------------------------------------------*/
 static uint8_t enabled;
 static uint8_t busy;
@@ -73,14 +64,14 @@ static int dht22_read(void) {
   if (enabled) {
     /* Exit low power mode and initialize variables */
     ti_lib_ioc_pin_type_gpio_output(DHT22_CONF_PIN);
-    ti_lib_gpio_pin_write(1 << DHT22_CONF_PIN, 1);
-    BUSYWAIT_UNTIL(DHT22_AWAKE_TIME);
+    ti_lib_gpio_set_dio(DHT22_CONF_PIN);
+    clock_delay_usec(DHT22_AWAKE_TIME);
     memset(dht22_data, 0, DHT22_BUFFER);
 
     /* Initialization sequence */
-    ti_lib_gpio_pin_write(1 << DHT22_CONF_PIN, 0);
-    BUSYWAIT_UNTIL(DHT22_START_TIME);
-    ti_lib_gpio_pin_write(1 << DHT22_CONF_PIN, 1);
+    ti_lib_gpio_clear_dio(DHT22_CONF_PIN);
+    clock_delay_usec(DHT22_START_TIME);
+    ti_lib_gpio_set_dio(DHT22_CONF_PIN);
     clock_delay_usec(DHT22_READY_TIME);
 
     /* Prepare to read, DHT22 should keep line low 80us, then 80us high.
@@ -89,12 +80,11 @@ static int dht22_read(void) {
      * if the line is high between 70-74us the bit sent will be "1" (one).
      */
     ti_lib_ioc_pin_type_gpio_input(DHT22_CONF_PIN);
-    last_state = ti_lib_gpio_pin_read(1 << DHT22_CONF_PIN) >> DHT22_CONF_PIN;
+    last_state = ti_lib_gpio_read_dio(DHT22_CONF_PIN);
 
     for (i = 0; i < DHT22_MAX_TIMMING; i++) {
       counter = 0;
-      while (ti_lib_gpio_pin_read(1 << DHT22_CONF_PIN) >> DHT22_CONF_PIN ==
-             last_state) {
+      while (ti_lib_gpio_read_dio(DHT22_CONF_PIN) == last_state) {
         counter++;
         clock_delay_usec(DHT22_READING_DELAY);
 
@@ -104,7 +94,7 @@ static int dht22_read(void) {
         }
       }
 
-      last_state = ti_lib_gpio_pin_read(1 << DHT22_CONF_PIN) >> DHT22_CONF_PIN;
+      last_state = ti_lib_gpio_read_dio(DHT22_CONF_PIN);
 
       /* Double check for stray sensor */
       if (counter == 0xFF) {
@@ -136,6 +126,7 @@ static int dht22_read(void) {
       checksum &= 0xFF;
       if (dht22_data[4] == checksum) {
         ti_lib_ioc_pin_type_gpio_input(DHT22_CONF_PIN);
+        ti_lib_gpio_set_dio(DHT22_CONF_PIN);
         return DHT22_SUCCESS;
       }
       PRINTF("DHT22: bad checksum\n");
@@ -179,6 +170,7 @@ static int value(int type) {
   if (dht22_read() != DHT22_SUCCESS) {
     PRINTF("DHT22: Fail to read sensor\n");
     ti_lib_ioc_pin_type_gpio_input(DHT22_CONF_PIN);
+    ti_lib_gpio_set_dio(DHT22_CONF_PIN);
     busy = 0;
     return DHT22_ERROR;
   }
@@ -217,6 +209,7 @@ static int configure(int type, int value) {
   }
 
   ti_lib_ioc_pin_type_gpio_input(DHT22_CONF_PIN);
+  ti_lib_gpio_set_dio(DHT22_CONF_PIN);
 
   /* Restart flag */
   busy = 0;

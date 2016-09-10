@@ -52,7 +52,7 @@
  * \name DHT22 default pin and port
  * @{
  */
-#define DHT22_CONF_PIN BOARD_IOID_DIO25
+#define DHT22_CONF_PIN 21
 /** @} */
 /* -------------------------------------------------------------------------- */
 /**
@@ -77,14 +77,14 @@
  * \name DHT22 constants
  * @{
  */
-#define DHT22_BUFFER 5        /**< Buffer to store the samples         */
-#define DHT22_COUNT 8         /**< Minimum ticks to detect a "1" bit   */
-#define DHT22_MAX_TIMMING 85  /**< Maximum ticks in a single operation */
-#define DHT22_READING_DELAY 1 /**< 1 us   */
-#define DHT22_READY_TIME 20   /**< 40 us  */
-#define DHT22_START_TIME (RTIMER_SECOND / 50) /**< 20 ms  */
-#define DHT22_AWAKE_TIME (RTIMER_SECOND / 4)  /**< 250 ms */
-                                              /** @} */
+#define DHT22_BUFFER 5              /**< Buffer to store the samples         */
+#define DHT22_COUNT 8               /**< Minimum ticks to detect a "1" bit   */
+#define DHT22_MAX_TIMMING 85        /**< Maximum ticks in a single operation */
+#define DHT22_READING_DELAY 1       /**< 1 us   */
+#define DHT22_READY_TIME 20         /**< 40 us  */
+#define DHT22_START_TIME 20 * 1000  /**< 20 ms  */
+#define DHT22_AWAKE_TIME 250 * 1000 /**< 250 ms */
+                                    /** @} */
 /* -------------------------------------------------------------------------- */
 /**
  * \name DHT22 auxiliary functions
